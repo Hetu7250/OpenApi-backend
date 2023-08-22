@@ -25,8 +25,8 @@ public class Knife4jConfig {
     public Docket defaultApi2() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(new ApiInfoBuilder()
-                        .title("project-backend")
-                        .description("project-backend")
+                        .title("接口平台文档")
+                        .description("接口平台文档")
                         .version("1.0")
                         .build())
                 .select()
