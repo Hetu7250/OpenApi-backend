@@ -1,0 +1,10 @@
+server:
+  port: 8090
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: to_baidu
+          uri: https://yupi.icu
+          predicates:
+            - After=2017-01-20T17:42:47.789-07:00[America/Denver]
