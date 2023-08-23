@@ -13,14 +13,4 @@ public class OpenapiGatewayApplication {
 		SpringApplication.run(OpenapiGatewayApplication.class, args);
 	}
 
-	@Bean
-	public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
-		return builder.routes()
-				.route("to_baidu", r -> r.path("/baidu")
-						.uri("http://baidu.com"))
-				.route("to_yupi", r -> r.path("/yupi")
-						.uri("http://yupi.icu"))
-				.build();
-	}
-
 }
