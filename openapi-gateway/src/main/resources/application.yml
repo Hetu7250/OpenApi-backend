@@ -8,6 +8,14 @@ spring:
           uri: http://localhost:8123
           predicates:
             - Path=/api/**
-#logging:
-#  level:
-#    org.springframework.cloud.gateway: trace
+      default-filters:
+
+dubbo:
+  application:
+    name: dubbo-springboot-demo-provider
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    id: nacos-registry
+    address: nacos://localhost:8848

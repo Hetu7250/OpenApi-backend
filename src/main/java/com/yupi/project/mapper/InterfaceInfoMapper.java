@@ -1,7 +1,8 @@
 package com.yupi.project.mapper;
 
-import com.yupi.project.model.entity.InterfaceInfo;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.hetu.common.model.entity.InterfaceInfo;
 
 /**
  * @Entity com.yupi.project.model.entity.InterfaceInfo

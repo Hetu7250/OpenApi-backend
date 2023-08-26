@@ -2,6 +2,7 @@ package com.yupi.project.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import service.UserInterfaceInfoService;
 
 import javax.annotation.Resource;
 

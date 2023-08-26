@@ -2,22 +2,20 @@ package com.yupi.project.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.yupi.project.model.entity.InterfaceInfo;
-import com.yupi.project.model.entity.UserInterfaceInfo;
+import com.hetu.common.model.entity.UserInterfaceInfo;
 
 /**
- *
- */
+ * @BelongsProject: OpenAPI-backend
+ * @BelongsPackage: com.yupi.project.service
+ * @ClassName: UserInterfaceInfoService
+ * @Description: TODO
+ * @Author: FengZH
+ * @Date: 2023/08/25 14:41:18
+ * @Version: V1.0
+ **/
 public interface UserInterfaceInfoService extends IService<UserInterfaceInfo> {
+    void validInterfaceInfo(UserInterfaceInfo userInterfaceInfo,boolean add);
 
 
-    public void validInterfaceInfo(UserInterfaceInfo userInterfaceInfo, boolean add);
-
-    /**
-     * 调用接口统计
-     * @param interfaceInfoId
-     * @param userId
-     * @return
-     */
     boolean invokeCount(long interfaceInfoId, long userId);
 }
