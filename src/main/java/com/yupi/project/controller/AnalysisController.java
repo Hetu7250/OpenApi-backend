@@ -42,7 +42,7 @@ public class AnalysisController {
 
     @GetMapping("/top/interface/invoke")
     @AuthCheck(mustRole = "admin")
-    public BaseResponse<List<InterfaceInfo>> getAnalysis(){
+    public BaseResponse<List<InterfaceInfoVO>> listTopInvokeInterfaceInfo(){
         //查询调用次数最多的接口
         List<UserInterfaceInfo> userInterfaceInfos = userInterfaceInfoMapper.listTopInvokeInterfaceInfo(3);
         //按照接口id分组

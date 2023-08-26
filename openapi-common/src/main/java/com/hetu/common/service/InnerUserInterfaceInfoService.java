@@ -18,4 +18,11 @@ public interface InnerUserInterfaceInfoService {
     boolean invokeCount(long interfaceInfoId, long userId);
 
 
+    /**
+     * @param interfaceInfoId
+     * @param userId
+     * @return boolean
+     */
+    boolean checkLeftNum(long interfaceInfoId, long userId);
+
 }

@@ -97,7 +97,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         try {
             invokeUser = innerUserService.getInvokeUser(accessKey);
         } catch (Exception e) {
-            log.error("invokeUser异常");
+            log.error("请求用户不存在");
         }
 
         if (invokeUser == null) {
@@ -123,12 +123,21 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         try {
             InvokeInterfaceInfo = innerInterfaceInfoService.getInterfaceInfo(path, method);
         } catch (Exception e) {
-            log.error("interfaceInfo异常");
+            log.error("请求模拟接口不存在");
         }
         if (InvokeInterfaceInfo == null) {
             return handleNoAuth(response);
         }
-        // todo 校验是否存在次数
+        //5.5 是否剩余次数
+        Boolean enuNum = null;
+        try {
+            enuNum = !innerUserInterfaceInfoService.checkLeftNum(InvokeInterfaceInfo.getId(),invokeUser.getId());
+        } catch (Exception e) {
+            log.error("剩余次数不足,userID:{},interfaceID:{}",invokeUser.getId(),InvokeInterfaceInfo.getId());
+        }
+        if (enuNum == null){
+            return handleNoEnuNum(response);
+        }
         // 6.请求转发,调用模拟接口,响应日志
         log.info("响应状态码:{}", response.getStatusCode());
         log.info("================Custom Global Filter End================");
@@ -197,6 +206,10 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
     private Mono<Void> handleInvokeError(ServerHttpResponse response) {
         response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+        return response.setComplete();
+    }
+    private Mono<Void> handleNoEnuNum(ServerHttpResponse response) {
+        response.setStatusCode(HttpStatus.FORBIDDEN);
         return response.setComplete();
     }
 }

@@ -25,4 +25,9 @@ public class InnerUserInterfaceInfoServiceImpl implements InnerUserInterfaceInfo
     public boolean invokeCount(long interfaceInfoId, long userId) {
         return userInterfaceInfoService.invokeCount(interfaceInfoId,userId);
     }
+
+    @Override
+    public boolean checkLeftNum(long interfaceInfoId, long userId) {
+        return userInterfaceInfoService.checkLeftNum(interfaceInfoId,userId);
+    }
 }

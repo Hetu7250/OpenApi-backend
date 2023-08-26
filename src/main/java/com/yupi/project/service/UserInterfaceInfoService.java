@@ -18,4 +18,6 @@ public interface UserInterfaceInfoService extends IService<UserInterfaceInfo> {
 
 
     boolean invokeCount(long interfaceInfoId, long userId);
+
+    boolean checkLeftNum(long interfaceInfoId, long userId);
 }
