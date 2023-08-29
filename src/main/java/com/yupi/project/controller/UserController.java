@@ -11,6 +11,7 @@ import com.yupi.project.common.ResultUtils;
 import com.yupi.project.exception.BusinessException;
 import com.yupi.project.model.dto.user.*;
 import com.yupi.project.model.vo.UserVO;
+import com.yupi.project.model.vo.UserVO2;
 import com.yupi.project.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -233,6 +234,25 @@ public class UserController {
         }).collect(Collectors.toList());
         userVOPage.setRecords(userVOList);
         return ResultUtils.success(userVOPage);
+    }
+
+
+    /**
+     * 根据 id 获取用户
+     *
+     * @param id
+     * @param request
+     * @return
+     */
+    @GetMapping("/getAS")
+    public BaseResponse<UserVO2> getUserASById(int id, HttpServletRequest request) {
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = userService.getById(id);
+        UserVO2 userVO2 = new UserVO2();
+        BeanUtils.copyProperties(user, userVO2);
+        return ResultUtils.success(userVO2);
     }
 
     // endregion

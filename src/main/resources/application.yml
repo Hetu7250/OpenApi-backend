@@ -44,5 +44,5 @@ dubbo:
     address: nacos://localhost:8848
 openapi:
   client:
-    secret-key: 5241095ad273a945bf1c604adcca14ec
-    access-key: e891651fb04cba0a43d39739c2d16376
+    secret-key: 29065a7c9aa1fcf3992db37421048d58
+    access-key: a0f3637adc063d6a6b0e6cdef6abb489

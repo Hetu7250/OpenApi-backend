@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
 import com.hetu.common.model.entity.InterfaceInfo;
 import com.hetu.common.model.entity.User;
+import com.hetu.common.model.entity.UserInterfaceInfo;
 import com.yupi.project.annotation.AuthCheck;
 import com.yupi.project.common.*;
 import com.yupi.project.constant.CommonConstant;
@@ -14,7 +15,9 @@ import com.yupi.project.model.dto.interfaceInfo.InterfaceInfoInvokeRequest;
 import com.yupi.project.model.dto.interfaceInfo.InterfaceInfoQueryRequest;
 import com.yupi.project.model.dto.interfaceInfo.InterfaceInfoUpdateRequest;
 import com.yupi.project.model.enums.InterfaceInfoStatusEnum;
+import com.yupi.project.model.vo.InterfaceInfoVO2;
 import com.yupi.project.service.InterfaceInfoService;
+import com.yupi.project.service.UserInterfaceInfoService;
 import com.yupi.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,6 +48,9 @@ public class InterfaceInfoController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private UserInterfaceInfoService userInterfaceInfoService;
 
     // region 增删改查
 
@@ -134,18 +140,30 @@ public class InterfaceInfoController {
     }
 
     /**
-     * 根据 id 获取
+     * 根据 id 获取 获取当前接口信息
      *
      * @param id
      * @return
      */
     @GetMapping("/get")
-    public BaseResponse<InterfaceInfo> getInterfaceInfoById(long id) {
+    public BaseResponse<InterfaceInfoVO2> getInterfaceInfoById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         InterfaceInfo interfaceInfo = interfaceInfoService.getById(id);
-        return ResultUtils.success(interfaceInfo);
+        InterfaceInfoVO2 interfaceInfoVO2 = new InterfaceInfoVO2();
+        BeanUtils.copyProperties(interfaceInfo, interfaceInfoVO2);
+        //获取当前用户ID 查询当前用户是否具有调用该接口的权限 是否需要开通或续费
+        User LoginUser = userService.getLoginUser(request);
+        UserInterfaceInfo one = userInterfaceInfoService.getOne(new QueryWrapper<UserInterfaceInfo>()
+                .eq("userId", LoginUser.getId()).eq("interfaceInfoId", id));
+        if (one == null) {
+            interfaceInfoVO2.setLeftNum(null);
+        } else {
+            interfaceInfoVO2.setLeftNum(one.getLeftNum());
+        }
+
+        return ResultUtils.success(interfaceInfoVO2);
     }
 
     /**
@@ -199,7 +217,6 @@ public class InterfaceInfoController {
         return ResultUtils.success(interfaceInfoPage);
     }
 
-    // endregion
 
     /**
      * 上线接口
@@ -221,12 +238,17 @@ public class InterfaceInfoController {
         if (oldInterfaceInfo == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-
+        String res = null;
         //2.判断接口是否可用
-        final com.hetu.openapiclientsdk.model.User user = new com.hetu.openapiclientsdk.model.User();
-        user.setUsername("testName");
-        final String res = openAPIClient.getUserNameByPost(user);
-        if (StringUtils.isBlank(res)) {
+        if (id == 1) {
+            final com.hetu.openapiclientsdk.model.User user = new com.hetu.openapiclientsdk.model.User();
+            user.setUsername("testName");
+            res = openAPIClient.getUserNameByPost(user);
+        } else if (id == 2) {
+            res =openAPIClient.getRandomEnglishName();
+            log.info("res = " + res);
+        }
+        if (StringUtils.isBlank(res)|| (res.contains("Error"))) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "接口验证失败");
         }
 
@@ -282,7 +304,7 @@ public class InterfaceInfoController {
      */
     @PostMapping("/invoke")
     public BaseResponse<String> InvokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest,
-                                                     HttpServletRequest request) {
+                                                    HttpServletRequest request) {
         if (interfaceInfoInvokeRequest == null || interfaceInfoInvokeRequest.getId() < 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -304,10 +326,20 @@ public class InterfaceInfoController {
         String accessKey = loginUser.getAccessKey();
         String secretKey = loginUser.getSecretKey();
 
-        Gson gson = new Gson();
-        //将请求参数,转换为User对象
-        com.hetu.openapiclientsdk.model.User user = gson.fromJson(userRequestParams, com.hetu.openapiclientsdk.model.User.class);
-        String res = new OpenAPIClient(accessKey, secretKey).getUserNameByPost(user);
+        String res = null;
+        if (id == 1) {
+            Gson gson = new Gson();
+            //将请求参数,转换为User对象
+            com.hetu.openapiclientsdk.model.User user = gson.fromJson(userRequestParams, com.hetu.openapiclientsdk.model.User.class);
+            res = new OpenAPIClient(accessKey, secretKey).getUserNameByPost(user);
+        } else if (id == 2) {
+            res =new OpenAPIClient(accessKey, secretKey).getRandomEnglishName();
+            log.info("res = " + res);
+        }
+        if (StringUtils.isBlank(res)|| (res.contains("Error"))) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "接口调用失败");
+        }
+
         return ResultUtils.success(res);
     }
 }

@@ -2,6 +2,7 @@ package com.yupi.project.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.hetu.common.model.entity.InterfaceInfo;
 import com.hetu.common.model.entity.User;
 import com.hetu.common.model.entity.UserInterfaceInfo;
 import com.yupi.project.annotation.AuthCheck;
@@ -12,6 +13,8 @@ import com.yupi.project.exception.BusinessException;
 import com.yupi.project.model.dto.userInterfaceInfo.UserInterfaceInfoAddRequest;
 import com.yupi.project.model.dto.userInterfaceInfo.UserInterfaceInfoQueryRequest;
 import com.yupi.project.model.dto.userInterfaceInfo.UserInterfaceInfoUpdateRequest;
+import com.yupi.project.model.vo.UserInterfaceInfoVO;
+import com.yupi.project.service.InterfaceInfoService;
 import com.yupi.project.service.UserInterfaceInfoService;
 import com.yupi.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 接口管理
@@ -40,6 +44,8 @@ public class UserInterfaceInfoController {
 
     @Resource
     private UserService userService;
+
+    @Resource InterfaceInfoService interfaceInfoService;
 
     // region 增删改查
 
@@ -196,6 +202,68 @@ public class UserInterfaceInfoController {
     }
 
     // endregion
+    @RequestMapping("/experience")
+//    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Long> experienceUserInterfaceInfo(@RequestBody UserInterfaceInfoAddRequest userInterfaceInfoAddRequest,
+                                               HttpServletRequest request) {
+        if (userInterfaceInfoAddRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        UserInterfaceInfo userInterfaceInfo = new UserInterfaceInfo();
+        BeanUtils.copyProperties(userInterfaceInfoAddRequest, userInterfaceInfo);
+        // 校验
+        userInterfaceInfoService.validInterfaceInfo(userInterfaceInfo, true);
+        User loginUser = userService.getLoginUser(request);
+        userInterfaceInfo.setUserId(loginUser.getId());
+
+        final UserInterfaceInfo one = userInterfaceInfoService.getOne(
+                new QueryWrapper<UserInterfaceInfo>()
+                        .eq("userId", loginUser.getId())
+                        .eq("interfaceInfoId", userInterfaceInfo.getInterfaceInfoId())
+        );
+
+        if (one != null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "已经体验过该接口");
+        }
+        userInterfaceInfo.setTotalNum(0);
+        userInterfaceInfo.setLeftNum(3);
+        boolean result = userInterfaceInfoService.save(userInterfaceInfo);
+        if (!result) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR);
+        }
+        long newInterfaceInfoId = userInterfaceInfo.getId();
+        return ResultUtils.success(newInterfaceInfoId);
+    }
 
 
+    @PostMapping("/getUserInterfaceInfoList")
+    public BaseResponse<List<UserInterfaceInfoVO>> getUserInterfaceInfoList(@RequestBody  UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest,
+                                                                            HttpServletRequest request) {
+        if (userInterfaceInfoQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        UserInterfaceInfo userInterfaceInfo = new UserInterfaceInfo();
+        BeanUtils.copyProperties(userInterfaceInfoQueryRequest, userInterfaceInfo);
+        // 校验
+        userInterfaceInfoService.validInterfaceInfo(userInterfaceInfo, true);
+        User loginUser = userService.getLoginUser(request);
+        userInterfaceInfo.setUserId(loginUser.getId());
+
+        List<UserInterfaceInfo> list = userInterfaceInfoService.list(
+                new QueryWrapper<UserInterfaceInfo>()
+                        .eq("userId", loginUser.getId())
+        );
+
+        final List<UserInterfaceInfoVO> list1 = list.stream().map(item -> {
+            UserInterfaceInfoVO vo = new UserInterfaceInfoVO();
+            BeanUtils.copyProperties(item, vo);
+            InterfaceInfo interfaceInfo = interfaceInfoService.getById(item.getInterfaceInfoId());
+            vo.setInterfaceInfoName(interfaceInfo.getName());
+            return vo;
+        }).collect(Collectors.toList());
+
+        return ResultUtils.success(list1);
+    }
 }

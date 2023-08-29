@@ -72,6 +72,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             String secretKey = DigestUtil.md5Hex(SALT+userAccount+ RandomUtil.randomNumbers(8));
             // 3. 插入数据
             User user = new User();
+            user.setUserName("用户"+RandomUtil.randomNumbers(5));
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword);
             user.setAccessKey(accessKey);
