@@ -1,10 +1,14 @@
-# SpringBoot 项目初始模板
+# New Link API
 
-> by [程序员鱼皮知识星球](https://yupi.icu)
+> by [royalhetu]()
 
-Java SpringBoot 项目初始模板，整合了常用框架和示例代码，大家可以在此基础上快速开发自己的项目。
+## 介绍
 
-## 模板功能
+基于React+SpringBoot+Dubbo+Nacos+Gateway的API接口开放调用平台
+
+管理员可以接入并发布接口,可视化各接口调用情况;用户可以浏览接口及在线调试,并通过客户端SDK轻松调用接口;
+
+## 功能
 
 - Spring Boot 2.7.0（贼新）
 - Spring MVC
@@ -25,4 +29,4 @@ Java SpringBoot 项目初始模板，整合了常用框架和示例代码，大�
 - 示例单元测试类
 - 示例 SQL（用户表）
 
-访问 localhost:7529/api/doc.html 就能在线调试接口了，不需要前端配合啦~
+访问 localhost:7529/api/doc.html 在线调试接口
